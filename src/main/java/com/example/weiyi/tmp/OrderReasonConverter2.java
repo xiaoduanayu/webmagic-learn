@@ -1,11 +1,14 @@
-package com.example.weiyi;
+package com.example.weiyi.tmp;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -14,26 +17,49 @@ import java.util.Optional;
  * @author debo
  * @date 2021-08-23
  */
-public class OrderReasonConverter {
+public class OrderReasonConverter2 {
     public static void main(String[] args) throws Exception {
-        BufferedReader reader = new BufferedReader(new FileReader("/home/debo/baidu/bd.txt"));
+        BufferedReader reader = new BufferedReader(new FileReader("/home/debo/baidu/0901.txt"));
+        String str;
+        List<JSONObject> list = new ArrayList<>();
+        while ((str = reader.readLine()) != null) {
+            JSONObject jsonObject = JSON.parseObject(str);
+            // 请求参数
+            String msgContent = jsonObject.getString("msgContent");
+            // 去掉第一行
+            String s = StringUtils.substringAfter(msgContent, "\r\n");
+            JSONObject jo = JSONObject.parseObject(s);
+            // QID
+            String qid = jo.getString("question_id");
+            // 响应参数
+            String msgResult = jsonObject.getString("msgResult");
+            JSONObject jo1 = JSONObject.parseObject(msgResult);
+            String question_id = jo1.getString("question_id");
+            if (StringUtils.isBlank(question_id)) {
+                // System.out.println("没有QID");
+                // 响应参数中没有QID
+                jo1.put("question_id", qid);
+            }
+            list.add(jo1);
+        }
         Map<String, Integer> reasonMap = new HashMap<>();
         Map<String, Integer> msgMap = new HashMap<>();
         Map<String, Integer> statusMap = new HashMap<>();
-        String s;
-        while ((s = reader.readLine()) != null) {
-            JSONObject jsonObject = JSON.parseObject(s);
+        for (JSONObject jsonObject : list) {
             String reason = jsonObject.getString("reason");
             String msg = jsonObject.getString("msg");
             int flag = 0;
             if (reason != null && !reason.trim().isEmpty()) {
+                if (reason.equals("非法医生")) {
+                    System.out.println(jsonObject.getString("question_id"));
+                }
                 flag = 1;
                 Integer count = reasonMap.get(reason);
                 reasonMap.put(reason, Optional.ofNullable(count).map(c -> c + 1).orElse(1));
             }
             if (msg != null && !msg.trim().isEmpty()) {
                 if (flag == 1) {
-                    System.out.println("重复：" + s);
+                    System.out.println("重复");
                 }
                 flag = 2;
                 if (msg.startsWith("Error_Rsapi_Receive:invalid resource")) {
@@ -52,9 +78,9 @@ public class OrderReasonConverter {
                 msgMap.put(msg, Optional.ofNullable(count).map(c -> c + 1).orElse(1));
             }
             if (flag == 0) {
-                Integer count = statusMap.get(s);
-                statusMap.put(s, Optional.ofNullable(count).map(c -> c + 1).orElse(1));
-
+                // System.out.println("都是空的："+jsonObject);
+                Integer count = statusMap.get("10113");
+                statusMap.put("10113", Optional.ofNullable(count).map(c -> c + 1).orElse(1));
             }
         }
         int c = 0;
