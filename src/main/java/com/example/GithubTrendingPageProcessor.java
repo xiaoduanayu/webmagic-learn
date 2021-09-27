@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 演示代理
+ *
  * @author debo
  */
 public class GithubTrendingPageProcessor implements PageProcessor {

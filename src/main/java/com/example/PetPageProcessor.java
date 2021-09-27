@@ -9,6 +9,7 @@ import us.codecraft.webmagic.processor.PageProcessor;
 import java.util.List;
 
 /**
+ * 基本运用
  * 爬取爱宠网宠物品种
  *
  * @author debo

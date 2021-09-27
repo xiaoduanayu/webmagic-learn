@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * 演示子页面爬取
  * 爬取苏宁红孩子母婴商城的全部品牌
  *
  * @author debo
